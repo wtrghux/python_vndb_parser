@@ -63,6 +63,8 @@ class mywindow(QMainWindow):
             QDesktopServices.openUrl(QUrl(linkVn))
 
     def checkWarnings(self):
+        self.ui.tableWidget.setRowCount(0)
+
         query = self.ui.searchInp.text()
         if query == "":
             QMessageBox.warning(self, "Error", "Заполните ввод!")
@@ -83,8 +85,8 @@ class mywindow(QMainWindow):
         try:
             imgTag = soup.find(class_="vnimg").find("img")
             imgLink = imgTag.get("src")
-            imgName = imgLink.split("/")[5]
-            imgPath = IMGS_PATH + imgName
+            imgName = imgLink.split("/")[-1:]
+            imgPath = IMGS_PATH + imgName[0]
             if os.path.exists(imgPath):
                 return imgPath
 
@@ -96,20 +98,13 @@ class mywindow(QMainWindow):
             print("LOG:", e)
             return os.getcwd() + "\\errorImage.jpg"
 
-    def addListItems(self, resultsList):
+    def addListItems(self, titleParameters):
 
         if not os.path.exists(IMGS_PATH):
             os.mkdir(IMGS_PATH)
-        for row, item in enumerate(resultsList, start=0):
-            titleLink = SITE + item.find("a").get("href")
+        for row, item in enumerate(titleParameters, start=0):
+            titleLink = item[len(item) - 1]
             imgPath = QIcon(self.downloadImg(titleLink))
-            titleParameters = [
-                item.find(class_="tc_title").getText(),
-                item.find(class_="tc_rel").getText(),
-                item.find(class_="tc_pop").getText(),
-                item.find(class_="tc_rating").getText(),
-                titleLink,
-            ]
             self.ui.tableWidget.insertRow(row)
             self.ui.tableWidget.setRowHeight(
                 row, (self.iconHeight + self.iconWidth) // 3
@@ -117,22 +112,43 @@ class mywindow(QMainWindow):
             img = QTableWidgetItem()
             img.setIcon(imgPath)
             self.ui.tableWidget.setItem(row, 0, img)
-            for j in range(1, len(titleParameters) + 1):
+            for j in range(1, len(item) + 1):
                 self.ui.tableWidget.setItem(
-                    row, j, QTableWidgetItem(titleParameters[j - 1])
+                    row, j, QTableWidgetItem(item[j - 1])
                 )
 
     def parseSearchResults(self, query):
 
         html = requests.get(SITE + f"/v?q={query}", headers=HEADERS)
         soup = bs(html.content, "html.parser")
-        if soup.find("table") is None:
-            return self.parseOnePage()
+        resultsCount = soup.find("p", class_="center")
+        if resultsCount is None:
+            return self.parseOnePage(soup)
 
+        # if no results found
+        if resultsCount.getText().split()[0] == "0":
+            return False
+
+        # if title page is returned
+        # if soup.find(class_="browsetabs") is None:
+        #     return self.parseOnePage(soup)
+
+        # if one page with titles list is returned
         pagesNum = soup.find("a", text="last »")
         if pagesNum is None:
-            return [tr for tr in soup.find_all("tr")][1:]
+            trList = [tr for tr in soup.find_all("tr")][1:]
+            return [
+                [
+                    item.find(class_="tc_title").getText(),
+                    item.find(class_="tc_rel").getText(),
+                    item.find(class_="tc_pop").getText(),
+                    item.find(class_="tc_rating").getText(),
+                    SITE + item.find("a").get("href"),
+                ]
+                for item in trList
+            ]
 
+        # if more than one page with results
         pages = pagesNum.get("href").split("&")[1]
         pagesCount = int(pages[2:])
         resultsList = []
@@ -141,14 +157,32 @@ class mywindow(QMainWindow):
                 SITE + f"/v?p={page}&q={query}", headers=HEADERS
             )
             soup = bs(html.content, "html.parser")
-            for item in soup.find_all("tr")[1:]:
-                resultsList.append(item)
-            time.sleep(1)
+            trList = [tr for tr in soup.find_all("tr")][1:]
+            for item in trList:
+                resultsList.append(
+                    [
+                        item.find(class_="tc_title").getText(),
+                        item.find(class_="tc_rel").getText(),
+                        item.find(class_="tc_pop").getText(),
+                        item.find(class_="tc_rating").getText(),
+                        SITE + item.find("a").get("href"),
+                    ]
+                )
+            time.sleep(0.7)
         return resultsList
 
-    def parseOnePage(self):
-
-        return 0
+    # function to parse exactly title page
+    def parseOnePage(self, soup):
+        rankings = soup.find(class_="votestats").find_all("p")
+        return [
+            [
+                soup.find(class_="title").getText(),
+                soup.find(class_="tc1").getText(),
+                rankings[0].getText().split()[-1:][0],
+                rankings[1].getText().split()[-1:][0],
+                soup.find("base").get("href"),
+            ]
+        ]
 
     def exit(self):
         if os.path.exists(IMGS_PATH):
