@@ -60,27 +60,29 @@ class mywindow(QMainWindow):
         query = self.ui.searchInput.text()
         if query == "":
             QMessageBox.warning(self, "Error", "Заполните ввод!")
-            return True
+            return 0
         resultsList = self.parseSearchResults(query)
         if resultsList == False:
             QMessageBox.information(self, "No result", "Ничего не найдено")
-            return True
+            return 0
         self.addListItems(resultsList)
 
     def downloadImg(self, link):
         html = requests.get(link, headers=HEADERS)
         soup = bs(html.content, "html.parser")
-        # добавить обработку explicit картинок
         try:
-        imgTag = soup.find(class_="vnimg").find("img")
-        imgLink = imgTag.get("src")
-        imgName = imgLink.split("/")[5]
-        imgPath = IMGS_PATH + imgName
-        if os.path.exists(imgPath):
+            imgTag = soup.find(class_="vnimg").find("img")
+            imgLink = imgTag.get("src")
+            imgName = imgLink.split("/")[5]
+            imgPath = IMGS_PATH + imgName
+            if os.path.exists(imgPath):
+                return imgPath
+            with open(imgPath, "wb") as f:
+                f.write(requests.get(imgLink, headers=HEADERS).content)
             return imgPath
-        with open(imgPath, "wb") as f:
-            f.write(requests.get(imgLink, headers=HEADERS).content)
-        return imgPath
+        except AttributeError as e:
+            print("LOG:", e)
+            return os.getcwd() + "errorImage.jpg"
 
     def addListItems(self, resultsList):
         for row, item in enumerate(resultsList, start=0):
@@ -111,7 +113,6 @@ class mywindow(QMainWindow):
         soup = bs(html.content, "html.parser")
         if soup.find("table") is None:
             return False
-        # return [tr for tr in soup.find_all("tr")][1:]
         pagesNum = soup.find("a", text="last »")
         if pagesNum is None:
             return [tr for tr in soup.find_all("tr")][1:]
@@ -125,9 +126,6 @@ class mywindow(QMainWindow):
             soup = bs(html.content, "html.parser")
             for item in soup.find_all("tr")[1:]:
                 resultsList.append(item)
-        # with open("ttt.txt", "w", encoding="utf-8") as f:
-        #     for i in resultsList:
-        #         f.write(str(i))
         return resultsList
 
     def parseOnePage(self):
