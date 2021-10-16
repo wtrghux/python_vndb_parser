@@ -72,9 +72,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>60</y>
-      <width>1061</width>
-      <height>761</height>
+      <y>70</y>
+      <width>1060</width>
+      <height>750</height>
      </rect>
     </property>
     <property name="font">
@@ -122,6 +122,25 @@
     <column/>
     <column/>
     <column/>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>48</y>
+      <width>301</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Montserrat</family>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Double click on title to open in browser</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
