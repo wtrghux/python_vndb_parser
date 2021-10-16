@@ -83,14 +83,26 @@
       <pointsize>10</pointsize>
      </font>
     </property>
+    <property name="frameShape">
+     <enum>QFrame::WinPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="midLineWidth">
+     <number>0</number>
+    </property>
     <property name="sizeAdjustPolicy">
      <enum>QAbstractScrollArea::AdjustToContents</enum>
     </property>
     <property name="editTriggers">
-     <set>QAbstractItemView::DoubleClicked</set>
+     <set>QAbstractItemView::NoEditTriggers</set>
     </property>
     <property name="alternatingRowColors">
      <bool>true</bool>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SingleSelection</enum>
     </property>
     <property name="columnCount">
      <number>6</number>

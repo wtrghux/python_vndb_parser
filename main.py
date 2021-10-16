@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
     QTableWidget,
     QTableWidgetItem,
     QMessageBox,
+    QHeaderView,
 )
 from PyQt5.QtGui import (
     QFont,
@@ -15,7 +16,7 @@ from PyQt5.QtGui import (
     QBrush,
     QDesktopServices,
 )
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QUrl
 from bs4 import BeautifulSoup as bs
 from window import Ui_MainWindow
 import requests
@@ -52,9 +53,24 @@ class mywindow(QMainWindow):
             f"{self.title} – {QApplication.applicationName()} {QApplication.applicationVersion()}"
         )
         self.ui.tableWidget.setHorizontalHeaderLabels(TABLE_HEADERS)
+        for key, value in zip([0, 1, 2, 3, 4], [80, 500, 100, 80, 80]):
+            self.ui.tableWidget.setColumnWidth(key, value)
+        for i in range(6):
+            self.ui.tableWidget.horizontalHeader().setSectionResizeMode(
+                i, QHeaderView.Fixed
+            )
 
+        self.ui.tableWidget.doubleClicked.connect(self.openVnLink)
         self.ui.searchButton.clicked.connect(self.checkWarnings)
         self.ui.exitButton.clicked.connect(self.exit)
+
+    def openVnLink(self):
+        for currentQTableWidgetItem in self.ui.tableWidget.selectedItems():
+            row = currentQTableWidgetItem.row()
+            linkVn = self.ui.tableWidget.item(
+                row, len(TABLE_HEADERS) - 1
+            ).text()
+            QDesktopServices.openUrl(QUrl(linkVn))
 
     def checkWarnings(self):
         query = self.ui.searchInput.text()
@@ -106,7 +122,7 @@ class mywindow(QMainWindow):
                 self.ui.tableWidget.setItem(
                     row, j, QTableWidgetItem(titleParameters[j - 1])
                 )
-        self.ui.tableWidget.resizeColumnsToContents()
+        # self.ui.tableWidget.resizeColumnsToContents()
 
     def parseSearchResults(self, query):
         html = requests.get(SITE + f"/v?q={query}", headers=HEADERS)
