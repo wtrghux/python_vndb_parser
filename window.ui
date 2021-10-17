@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1100</width>
-    <height>850</height>
+    <height>880</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,6 +21,9 @@
        <enum>QFrame::NoFrame</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QFrame" name="toolBar">
          <property name="frameShape">
@@ -104,7 +107,7 @@
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
+         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
           <property name="spacing">
            <number>5</number>
           </property>
@@ -174,6 +177,19 @@
             <column/>
             <column/>
             <column/>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="labelTime">
+            <property name="font">
+             <font>
+              <family>Montserrat</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
            </widget>
           </item>
          </layout>
