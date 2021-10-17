@@ -21,8 +21,9 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 YaBrowser/19.10.2.195 Yowser/2.5 Safari/537.36"
 }
 SITE = "https://vndb.org"
-APP_ICON = os.getcwd() + "\\static\\favicon.ico"
-IMGS_PATH = os.getcwd() + "\\media\\"
+WORKDIR = dir_path = os.path.dirname(os.path.realpath(__file__))
+APP_ICON = WORKDIR + "\\static\\favicon.ico"
+IMGS_PATH = WORKDIR + "\\media\\"
 TABLE_HEADERS = ["Poster", "Title", "Released", "Popularity", "Rating", "Link"]
 
 
@@ -97,7 +98,7 @@ class mywindow(QMainWindow):
 
         except AttributeError as e:
             print("LOG:", e)
-            return os.getcwd() + "\\static\\errorImage.jpg"
+            return WORKDIR + "\\static\\errorImage.jpg"
 
     def addListItems(self, titleParameters):
 
