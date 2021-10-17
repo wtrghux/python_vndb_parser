@@ -20,9 +20,10 @@ import os
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 YaBrowser/19.10.2.195 Yowser/2.5 Safari/537.36"
 }
-TABLE_HEADERS = ["Poster", "Title", "Released", "Popularity", "Rating", "Link"]
 SITE = "https://vndb.org"
-IMGS_PATH = os.getcwd() + "\media\\"
+APP_ICON = os.getcwd() + "\\static\\favicon.ico"
+IMGS_PATH = os.getcwd() + "\\media\\"
+TABLE_HEADERS = ["Poster", "Title", "Released", "Popularity", "Rating", "Link"]
 
 
 class mywindow(QMainWindow):
@@ -39,6 +40,7 @@ class mywindow(QMainWindow):
         self.setWindowTitle(
             f"{self.title} – {QApplication.applicationName()} {QApplication.applicationVersion()}"
         )
+        self.setWindowIcon(QIcon(APP_ICON))
 
         self.ui.tableWidget.setIconSize(QSize(self.iconWidth, self.iconHeight))
         self.ui.tableWidget.setHorizontalHeaderLabels(TABLE_HEADERS)
@@ -52,7 +54,6 @@ class mywindow(QMainWindow):
 
         self.ui.searchInp.returnPressed.connect(self.ui.searchBtn.click)
         self.ui.searchBtn.clicked.connect(self.checkWarnings)
-        self.ui.exitButton.clicked.connect(self.exit)
 
     def openVnLink(self):
         for currentQTableWidgetItem in self.ui.tableWidget.selectedItems():
@@ -100,6 +101,7 @@ class mywindow(QMainWindow):
 
     def addListItems(self, titleParameters):
 
+        startTime = time.time()
         if not os.path.exists(IMGS_PATH):
             os.mkdir(IMGS_PATH)
         for row, item in enumerate(titleParameters, start=0):
@@ -116,6 +118,9 @@ class mywindow(QMainWindow):
                 self.ui.tableWidget.setItem(
                     row, j, QTableWidgetItem(item[j - 1])
                 )
+        endTime = time.time()
+        resTime = round(endTime - startTime, 2)
+        self.ui.labelTime.setText(f"Время выполнения скрипта: {resTime} сек.")
 
     def parseSearchResults(self, query):
 
@@ -166,7 +171,7 @@ class mywindow(QMainWindow):
                         SITE + item.find("a").get("href"),
                     ]
                 )
-            time.sleep(0.7)
+            time.sleep(1)
         return resultsList
 
     # function to parse exactly title page
@@ -182,10 +187,10 @@ class mywindow(QMainWindow):
             ]
         ]
 
-    def exit(self):
+    def closeEvent(self, event):
         if os.path.exists(IMGS_PATH):
             shutil.rmtree(IMGS_PATH)
-        self.close()
+        event.accept()
 
 
 if __name__ == "__main__":
