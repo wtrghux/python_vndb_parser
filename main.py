@@ -96,7 +96,7 @@ class mywindow(QMainWindow):
 
         except AttributeError as e:
             print("LOG:", e)
-            return os.getcwd() + "\\errorImage.jpg"
+            return os.getcwd() + "\\static\\errorImage.jpg"
 
     def addListItems(self, titleParameters):
 
@@ -122,16 +122,14 @@ class mywindow(QMainWindow):
         html = requests.get(SITE + f"/v?q={query}", headers=HEADERS)
         soup = bs(html.content, "html.parser")
         resultsCount = soup.find("p", class_="center")
+
+        # if title page is returned
         if resultsCount is None:
             return self.parseOnePage(soup)
 
         # if no results found
         if resultsCount.getText().split()[0] == "0":
             return False
-
-        # if title page is returned
-        # if soup.find(class_="browsetabs") is None:
-        #     return self.parseOnePage(soup)
 
         # if one page with titles list is returned
         pagesNum = soup.find("a", text="last »")
